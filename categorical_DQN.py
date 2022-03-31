@@ -11,13 +11,13 @@ class categorical_DQN(DQN):
         replay_size = 80000,
         EPISODE = 10000,
         batch_size = 32,
-        gamma = 0.97,
+        gamma = 0.99,
         STEP = 1000,
         epsilon = 0.5,
         learning_rate = 1e-3,
-        update_freq = 5,
-        Vmin = -20,
-        Vmax = 20,
+        update_freq = 100,
+        Vmin = -10,
+        Vmax = 10,
         N_atoms = 51
     ):
         self.Vmin = Vmin
