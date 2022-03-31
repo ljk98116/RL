@@ -14,13 +14,19 @@ class priority_replay_buffer:
 
     def sample(self,batch_size):
         batch = []
-        if len(self.p_buffer) < batch_size:
-            return batch
-        segment = self.p_buffer[0] / batch_size
+        segment = self.p_buffer.tree[0] / batch_size
+        print(segment)
         for i in range(batch_size):
             lo = segment * i
             hi = segment * (i+1)
             s = random.uniform(lo, hi)
-            retp = self.p_buffer.traverse(s,0)
+            retp = 0
+            if i==0:
+                retp = self.p_buffer.traverse(s,0)
+            else:
+                retp = self.p_buffer.traverse(s,0)
             batch.append(self.replay_buffer[retp])
+        # print(batch)
         return batch
+    
+    

@@ -11,3 +11,8 @@ if __name__ == "__main__":
     tree.add(8)
     tree.add(2)
     print(tree.traverse(24,0))
+    k=0
+    while(k < 8):
+        tree.add(2)
+        k+=1
+    print(tree.traverse(24,0))

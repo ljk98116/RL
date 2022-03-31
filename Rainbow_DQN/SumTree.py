@@ -5,21 +5,22 @@ class SumTree:
     def __init__(self,size):
         self.leaf = np.zeros((size))
         self.leaf_cursor = 0
+        self.total_times = 0
         self.cursor = self.leaf_cursor + size - 1
         self.tree = np.zeros((2*size-1))
     
     def add(self,p):
         if self.leaf_cursor >= len(self.leaf):
             self.leaf_cursor = self.leaf_cursor % len(self.leaf)
-            self.cursor = self.leaf_cursor + len(self.leaf) - 1
-
+        
+        self.cursor = self.leaf_cursor + len(self.leaf) - 1
         change = p - self.tree[self.cursor]
         self.leaf[self.leaf_cursor] = p
         self.tree[self.cursor] = p
 
         self.update(change)
-        self.cursor += 1
         self.leaf_cursor += 1
+        self.total_times += 1
 
     def update(self,change):
         parent = self.cursor // 2
