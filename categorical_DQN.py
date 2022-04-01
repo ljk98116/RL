@@ -23,6 +23,7 @@ class categorical_DQN(DQN):
         self.Vmin = Vmin
         self.Vmax = Vmax
         self.N_atoms = N_atoms
+        # initialize support vector
         self.z = np.linspace(self.Vmin,self.Vmax,N_atoms)
         self.deltaz = (self.Vmax - self.Vmin) / (self.N_atoms - 1)
         super(categorical_DQN,self).__init__(
@@ -43,6 +44,8 @@ class categorical_DQN(DQN):
         self.next_state = tf.placeholder(tf.float32,[None,self.state_dim],name='next_state')
         
         w_initializer,b_initializer = tf.random_normal_initializer(0.,0.3),tf.constant_initializer(0.1)
+        # input:state
+        # output:batch_size * action_dim * N_atoms p_values
         with tf.variable_scope('online_net'):
             e1 = tf.layers.dense(self.state,20,tf.nn.relu,kernel_initializer=w_initializer,bias_initializer=b_initializer,name='e1')
             e2 = tf.layers.dense(e1,20,tf.nn.relu,kernel_initializer=w_initializer,bias_initializer=b_initializer,name='e2')
@@ -52,7 +55,7 @@ class categorical_DQN(DQN):
             p_eval = tf.reshape(self.q_eval,[-1,self.action_dim,self.N_atoms])
             self.p_eval = tf.nn.softmax(p_eval,axis=2)
 
-        # get Q for each action,Q(state,action)
+        # get p for each action,p(state,action)
         a_indices = tf.stack([tf.range(tf.shape(self.action)[0],dtype=tf.int32),self.action],axis=1)
         self.p_eval_w = tf.gather_nd(params=self.p_eval,indices=a_indices)
 
@@ -92,9 +95,9 @@ class categorical_DQN(DQN):
         reward_batch = [batch[i][2] for i in range(self.batch_size)]
         next_state_batch = [batch[i][3] for i in range(self.batch_size)]
         done_batch = [batch[i][4] for i in range(self.batch_size)]
-
+        # get current p(s',a) 
         p_eval = self.sess.run(self.p_eval,feed_dict={self.state:next_state_batch})
-
+        # find a* = argmax(p(s',a))
         a_ = []
         for i in range(self.batch_size):
             Q_ = []
@@ -105,7 +108,7 @@ class categorical_DQN(DQN):
 
         Tz = np.zeros((self.batch_size,self.N_atoms))
         m = np.zeros((self.batch_size,self.N_atoms))
-
+        # get p_(s',a*)
         p_ = self.sess.run(self.p_target_w,feed_dict={self.state:next_state_batch,self.action:a_})
         for i in range(self.batch_size):
             b = np.zeros((self.N_atoms))
@@ -113,14 +116,16 @@ class categorical_DQN(DQN):
             u = np.zeros((self.N_atoms)).astype(int)
             pp = p_[i]
             for j in range(self.N_atoms):
+                # get Tz onto support z
                 Tz[i][j] = reward_batch[i] + (1-done_batch[i]) * self.gamma * self.z[j]
                 Tz[i][j] = np.clip(Tz[i][j],self.Vmin,self.Vmax)
                 b[j] = (Tz[i][j] - self.Vmin) / self.deltaz
                 l[j] = np.floor(b[j])
                 u[j] = np.ceil(b[j])
+                # get m vector
                 m[i][l[j]] += pp[j] * (u[j] - b[j] + 0.) 
                 m[i][u[j]] += pp[j] * (b[j] - l[j] + 0.)
-
+        # train the net
         self.sess.run(self._train_op,feed_dict={self.state:state_batch,self.action:action_batch,self.m:m})
 
     def choose_action(self,state):
