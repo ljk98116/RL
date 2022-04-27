@@ -1,5 +1,5 @@
 import gym
-from n_step_DQN import n_step_DQN
+from DQNs.n_step_DQN import n_step_DQN
 
 env = gym.make('CartPole-v1')
 

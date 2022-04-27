@@ -1,5 +1,5 @@
 import gym
-from categorical_DQN import categorical_DQN
+from DQNs.categorical_DQN import categorical_DQN
 
 env = gym.make('CartPole-v1')
 

@@ -2,7 +2,7 @@ import tensorflow as tf
 import random
 import numpy as np
 from collections import deque
-from DQN import DQN
+from DQNs.DQN import DQN
 
 class n_step_DQN(DQN):
     def __init__(
