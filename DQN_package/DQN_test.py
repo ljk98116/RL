@@ -1,5 +1,5 @@
 import gym
-from DQNs.DQN import DQN
+from DQN import DQN
 
 env = gym.make('CartPole-v1')
 

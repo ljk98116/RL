@@ -1,5 +1,4 @@
-from DQNs.DQN import DQN
-import random
+from DQN import DQN
 import numpy as np
 import tensorflow as tf
 

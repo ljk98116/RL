@@ -1,5 +1,5 @@
 import gym
-from DQNs.Average_DQN import Average_DQN
+from Average_DQN import Average_DQN
 
 env = gym.make('CartPole-v1')
 
