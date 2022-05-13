@@ -9,14 +9,14 @@ class RDPG_Agent:
     def __init__(
             self,
             env,
-            replay_size=15000,
-            episode=500,
+            replay_size=10000,
+            episode=120,
             batch_size=32,
             gamma=0.9,
             step=200,
             T = 10,
             hidden_units = 30,
-            learning_rate=1e-3,
+            learning_rate=5e-3,
             update_freq=1
     ):
         # env params
@@ -215,7 +215,7 @@ class RDPG_Agent:
             self.actor_params_dict[self.actor_holder_list[len(self.actor_holder_list) - 1]] = np.zeros(var.shape.as_list())
 
         for i, var in zip(range(len(actor_target_params)), actor_target_params):
-            self.actor_assign_ops.append(tf.assign(var, self.actor_holder_list[i][0]))
+            self.actor_assign_ops.append(tf.assign(var, 0.3 * self.actor_holder_list[i][0] + 0.7 * var))
 
         self.actor_update_net_op = tf.group(*self.actor_assign_ops)
 
@@ -228,7 +228,7 @@ class RDPG_Agent:
             self.critic_params_dict[self.critic_holder_list[len(self.critic_holder_list) - 1]] = np.zeros(var.shape.as_list())
 
         for i, var in zip(range(len(critic_target_params)), critic_target_params):
-            self.critic_assign_ops.append(tf.assign(var, self.critic_holder_list[i][0]))
+            self.critic_assign_ops.append(tf.assign(var, 0.3 * self.critic_holder_list[i][0] + 0.7 * var))
 
         self.critic_update_net_op = tf.group(*self.critic_assign_ops)
 
